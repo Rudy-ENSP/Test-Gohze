@@ -1,0 +1,156 @@
+import React, { Component } from 'react';
+
+import axios from 'axios';
+
+
+import {Redirect} from "react-router-dom";
+
+
+
+export class Acceuil extends Component () {
+
+  constructor(){
+    super()
+    this.state={
+       extremedroite:"",
+       datatond1:"",
+       sequence1:"",
+       datatond2:"",
+       sequence2:"",
+       datatond3:"",
+       sequence3:"",
+       result1:"",
+       result2:"",
+       result3:"",
+
+    }
+}
+componentDidMount() {
+}
+
+onChangedatatond1 = (event) => {
+    this.setState({datatond1: event.target.value});
+    
+  }
+onChangedatatond2 = (event) => {
+this.setState({datatond2: event.target.value});
+
+}
+onChangedatatond3 = (event) => {
+this.setState({datatond3: event.target.value});
+
+}
+onChangesequence1 = (event) => {
+    this.setState({sequence1: event.target.value});
+    
+  }
+onChangesequence2 = (event) => {
+this.setState({sequence2: event.target.value});
+
+}
+onChangesequence3 = (event) => {
+this.setState({sequence3: event.target.value});
+
+}
+
+onChangeextremedroite = (event) => {
+    this.setState({extremedroite: event.target.value});
+    
+    }
+onSendData= (event) => {
+       
+    event.preventDefault();
+    let Data={
+        'extremedroite':this.state.extremedroite,
+        'datatond1': this.state.datatond1,
+        'datatond2': this.state.datatond2,
+        'datatond3': this.state.datatond3,
+
+        'sequence1':this.state.sequence1,
+        'sequence2':this.state.sequence2,
+        'sequence3':this.state.sequence2,
+               
+        
+    };
+    axios.post('http://127.0.0.1:8000/gohze/tondeuse/',Data)
+          .then(res => {
+            const result = res.data;
+            this.setState({result1:result.tond1,result2:result.tond2,result3:result.tond3, });
+            
+            
+
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+
+    
+   
+    
+  }
+render(){
+
+
+  return (
+    <div className="App">
+      <form id="validate" onSubmit={this.onSendData} >
+                           
+        <h4 class="modal-title">Entrer les informtions des tondeuses</h4>
+                               
+                  <div class="form-group">
+												<label for='username' style={{fontWeight:"bold"}}>Coordonnees point Extreme droite</label>
+															<input type='text' className ="form-control" name='Titre'
+													onChange={this.onChangeextremedroite} required />
+														
+									</div>
+                  <div class="form-group">
+                  <label for='username' style={{fontWeight:"bold"}}>Donnée Tondeuse 1</label>
+															<input type='text' className ="form-control" name='Titre'
+													onChange={this.onChangedatatond1} required />        
+														
+									</div>
+                  <div class="form-group">
+                  <label for='username' style={{fontWeight:"bold"}}>Sequence 1</label>
+															<input type='text' className ="form-control" name='Titre'
+													onChange={this.onChangesequence1} required />        
+														
+									</div>
+                  <div class="form-group">
+                  <label for='username' style={{fontWeight:"bold"}}>Donnée Tondeuse 2</label>
+															<input type='text' className ="form-control" name='Titre'
+													onChange={this.onChangedatatond2} required />        
+														
+									</div>
+                  <div class="form-group">
+                  <label for='username' style={{fontWeight:"bold"}}>Sequence 2</label>
+															<input type='text' className ="form-control" name='Titre'
+													onChange={this.onChangesequence2} required />        
+														
+									</div>
+                  <div class="form-group">
+                  <label for='username' style={{fontWeight:"bold"}}>Donnée Tondeuse 3</label>
+															<input type='text' className ="form-control" name='Titre'
+													onChange={this.onChangedatatond3} required />        
+														
+									</div>
+                  <div class="form-group">
+                  <label for='username' style={{fontWeight:"bold"}}>Sequence 3</label>
+															<input type='text' className ="form-control" name='Titre'
+													onChange={this.onChangesequence3} required />        
+														
+									</div>
+
+									<input type="submit" id="input" onClick={this.onSendData} style={{marginLeft:'235px'}} class="btn btn-success" value="Enregistrer"  />
+                            
+							    
+                               
+                            
+							</form>
+    </div>
+  );
+}
+  
+}
+
+export default Acceuil;
+
