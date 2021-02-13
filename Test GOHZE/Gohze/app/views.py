@@ -7,6 +7,9 @@ from rest_framework.response import Response
 
 from django.contrib.auth import authenticate, get_user_model, logout, login
 from django.shortcuts import get_object_or_404, get_list_or_404
+
+from .models import Partie
+from .serializers import PartieSerializer
 import matplotlib.pyplot as plt
 
 
@@ -81,14 +84,36 @@ def move_tondeuse(request):
     print(tond1)
     result1=mouvement_tondeuse(sequence1,tond1)
     tondeuse1={"positionX":result1.position[0],"positionY":result1.position[1],"orientation":result1.orientation}
-
+    sortie1=str(result1.position[0])+" "+str(result1.position[1])+ " "+ result1.orientation
+    print(sortie1)
     tond2=Tondeuse()
     position2=request.data['datatond2'].split()
     tond2.position=[int(position2[0]),int(position2[1])]
     tond2.orientation=position2[2]
     print(tond2)
     result2=mouvement_tondeuse(sequence2,tond2)
+    flag=(result2.position==result1.position)
+    while (flag):
+        tond2new1=[]
+        if (result2.position==result1.position):
+          print("COLLISION")
+          if (sequence2.find('A')!=-1):
+            last_deplacement=sequence2.rindex("A")
+            sequence2=sequence2[0:last_deplacement]
+            print("sequence 2 new :"+sequence2)
+            tond2new1=Tondeuse()
+            position2=request.data['datatond2'].split()
+            tond2new1.position=[int(position2[0]),int(position2[1])]
+            tond2new1.orientation=position2[2]
+            result2=mouvement_tondeuse(sequence2,tond2new1)
+            flag=True
+          else:
+            flag=False
+        else:
+          flag=False
+
     tondeuse2={"positionX":result2.position[0],"positionY":result2.position[1],"orientation":result2.orientation}
+    sortie2=str(result2.position[0])+" "+str(result2.position[1])+ " "+ result2.orientation
 
     tond3=Tondeuse()
     position3=request.data['datatond3'].split()
@@ -96,7 +121,64 @@ def move_tondeuse(request):
     tond3.orientation=position3[2]
     print(tond3)
     result3=mouvement_tondeuse(sequence3,tond3)
+    flag=(result3.position==result1.position)
+    while (flag):
+        tond3new1=[]
+        if (result3.position==result1.position):
+          if (sequence3.find('A')!=-1):
+            print("COLLISION")
+            last_deplacement3=sequence3.rindex("A")
+            sequence3=sequence3[0:last_deplacement3]
+            print("sequence 3 new :"+sequence3)
+            tond3new1=Tondeuse()
+            position3=request.data['datatond3'].split()
+            tond3new1.position=[int(position3[0]),int(position3[1])]
+            tond3new1.orientation=position3[2]
+            result3=mouvement_tondeuse(sequence3,tond3new1)
+            flag=True
+          else:
+            flag=False
+        else:
+          flag=False
+    
+    flag=(result3.position==result2.position)
+    while (flag):
+        tond3new2=[]
+        if (result3.position==result2.position):
+          if (sequence3.find('A')!=-1):
+            print("COLLISION")
+            last_deplacement3=sequence3.rindex("A")
+            sequence3=sequence3[0:last_deplacement3]
+            print("sequence 3 new :"+sequence3)
+            tond3new2=Tondeuse()
+            position3=request.data['datatond3'].split()
+            tond3new2.position=[int(position3[0]),int(position3[1])]
+            tond3new2.orientation=position3[2]
+            result3=mouvement_tondeuse(sequence3,tond3new2)
+            flag=True
+          else:
+            flag=False
+        else:
+          flag=False
+    print(result3)
+
     tondeuse3={"positionX":result3.position[0],"positionY":result3.position[1],"orientation":result3.orientation}
+    sortie3=str(result3.position[0])+" "+str(result3.position[1])+ " "+ result3.orientation
+    # Ajout de la partie dans l'historique
+
+    partie = Partie(extremedroite=request.data['extremedroite'])
+    partie.sequence1 = request.data['sequence1'].upper()
+    partie.sequence2 = request.data['sequence2'].upper()
+    partie.sequence3 = request.data['sequence3'].upper()
+    partie.data_tondeuse1 =request.data['datatond1']
+    partie.data_tondeuse2 =request.data['datatond2']
+    partie.data_tondeuse3 =request.data['datatond3']
+    partie.sortie1=sortie1
+    partie.sortie2=sortie2
+    partie.sortie3=sortie3
+    partie.save()
+
+
     return JsonResponse({"state":"success",
     'tondeuse1':tondeuse1,
     'tondeuse2':tondeuse2,
@@ -105,3 +187,13 @@ def move_tondeuse(request):
     
     
     })  
+
+@api_view(['GET'])
+def listeParties(request):
+    liste=[]
+    parties = Partie.objects.filter().order_by('id').reverse()
+    for i in range(0,5):
+      liste.append(parties[i])
+
+    serializer = PartieSerializer(liste,many=True)
+    return JsonResponse(serializer.data, safe=False)

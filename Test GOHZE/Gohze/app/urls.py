@@ -21,5 +21,7 @@ from app import views
 urlpatterns = [
     
     path('tondeuse/', views.move_tondeuse, name="move_tondeuse"),
+    path('listeParties/', views.listeParties, name="listeParties"),
+    
     
 ]
